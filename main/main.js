@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const GLOBAL_CONFIG = require('./config/config.global');
 const setApplicationMenu = require('./utils/menu');
 const { isDevEnv } = require('./utils/util');
@@ -18,23 +18,25 @@ const MAIN_WINDOW_CONFIG = {
   webPreferences: {
     enableRemoteModule: true,
     nodeIntegration: true,
-    contextIsolation: false,
+    contextIsolation: true,
+    preload: path.join(__dirname, '../demo/preload.js')
   },
 };
 
 function createWindow() {
   mainWindow = new BrowserWindow(MAIN_WINDOW_CONFIG);
-
   if (isDevEnv()) {
     // 开发环境
     // const installDevtoolExt = require('./utils/installDevtoolExt');
     // 安装调试工具拓展
     // installDevtoolExt();
 
-    mainWindow.loadURL('http://localhost:8000');
-    mainWindow.webContents.openDevTools();
+    //mainWindow.loadURL('http://localhost:8000');
+    //mainWindow.webContents.openDevTools();//打开调试模式
+    
+    //加载页面
+    mainWindow.loadFile('./demo/index.html')
   } else {
-    // mainWindow.webContents.openDevTools();
     app.server = require('./server.js');  
     mainWindow.loadURL('http://localhost:3000');
     win_listener(mainWindow)
@@ -45,8 +47,14 @@ function createWindow() {
     //     slashes: true,
     //   }),
     // );
-
   }
+
+  //接收信息
+  ipcMain.on('set-title', (event, title) => {
+    const webContents = event.sender
+    const win2 = BrowserWindow.fromWebContents(webContents)
+    win2.setTitle(title)
+  })
 
   function win_listener(win) {
     win.webContents.on('new-window', (e, url, frameName, disposition, options) => {

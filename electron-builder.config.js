@@ -38,7 +38,7 @@ module.exports = {
   },
   win: {
     target: ['nsis', 'portable', 'squirrel'],
-    icon: 'build/icon.ico', // 客户端图标
+    icon: 'build/icon.png', // 客户端图标 win环境下图标尺寸最小为256x256
   },
   nsis: {
     oneClick: false, // 是否一键安装

@@ -21,3 +21,6 @@
 .umi-production
 
 release
+
+renderer/node_modules
+yarn.lock
